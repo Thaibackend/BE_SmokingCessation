@@ -1,0 +1,355 @@
+### Test Register User
+POST https://localhost:7001/api/Auth/register/user
+Content-Type: application/json
+
+{
+  "username": "user123",
+  "email": "user@gmail.com",
+  "password": "123456789",
+  "confirmPassword": "123456789",
+  "fullName": "Nguyễn Văn User",
+  "phoneNumber": "0912345678"
+}
+
+### Test Register Coach
+POST https://localhost:7001/api/Auth/register/coach
+Content-Type: application/json
+
+{
+  "username": "coach123",
+  "email": "coach@gmail.com",
+  "password": "123456789",
+  "confirmPassword": "123456789",
+  "fullName": "Bác sĩ Nguyễn Văn Coach",
+  "phoneNumber": "0987654321",
+  "qualifications": "Bằng Thạc sĩ Y khoa",
+  "experience": "5 năm kinh nghiệm",
+  "specialization": "Tâm lý trị liệu"
+}
+
+### Test Register Admin
+POST https://localhost:7001/api/Auth/register/admin
+Content-Type: application/json
+
+{
+  "username": "admin123",
+  "email": "admin@gmail.com",
+  "password": "admin123456789",
+  "confirmPassword": "admin123456789",
+  "fullName": "Quản trị viên",
+  "adminCode": "SMOKING_QUIT_ADMIN_2024"
+}
+
+### Test Register Member 2
+POST https://localhost:7001/api/Auth/register/user
+Content-Type: application/json
+
+{
+  "username": "member456",
+  "email": "member456@gmail.com",
+  "password": "123456789",
+  "confirmPassword": "123456789",
+  "fullName": "Nguyễn Thị Member",
+  "phoneNumber": "0987654321"
+}
+
+### Test Login Admin
+POST https://localhost:7001/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@gmail.com",
+  "password": "admin123456789"
+}
+
+### Test Login Coach
+POST https://localhost:7001/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "coach@gmail.com",
+  "password": "123456789"
+}
+
+### Test Login User
+POST https://localhost:7001/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "user@gmail.com",
+  "password": "123456789"
+}
+
+### Test Login Member 2
+POST https://localhost:7001/api/Auth/login
+Content-Type: application/json
+
+{
+  "email": "member456@gmail.com",
+  "password": "123456789"
+}
+
+#########################################
+### FLOW 1: COACH MUA GÓI CỦA ADMIN
+#########################################
+
+### 1. Admin tạo gói Premium cho Coach
+POST https://localhost:7001/api/Package
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "name": "Gói Coach Premium",
+  "description": "Gói dành cho Coach với đầy đủ tính năng quản lý và tư vấn khách hàng",
+  "price": 1500000,
+  "type": "Coach",
+  "durationDays": 365
+}
+
+### 2. Coach xem danh sách gói Admin
+GET https://localhost:7001/api/Package
+Authorization: Bearer {{coach_token}}
+
+### 3. Coach mua gói Premium từ Admin
+POST https://localhost:7001/api/Order
+Content-Type: application/json
+Authorization: Bearer {{coach_token}}
+
+{
+  "packageId": 1,
+  "paymentMethod": "Credit Card"
+}
+
+### 4. Admin approve đơn hàng Coach
+PUT https://localhost:7001/api/Order/1/status
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "status": "Paid",
+  "transactionId": "TXN_COACH_001"
+}
+
+#########################################
+### FLOW 2: COACH TẠO GÓI CHO MEMBER
+#########################################
+
+### 5. Coach tạo gói dịch vụ cho Member - Gói Basic
+POST https://localhost:7001/api/Package
+Content-Type: application/json
+Authorization: Bearer {{coach_token}}
+
+{
+  "name": "Cai thuốc lá 30 ngày - Cơ bản",
+  "description": "Chương trình cai thuốc lá cơ bản trong 30 ngày với hỗ trợ từ Coach chuyên nghiệp",
+  "price": 500000,
+  "type": "Member",
+  "durationDays": 30
+}
+
+### 6. Coach tạo gói dịch vụ cho Member - Gói Advanced
+POST https://localhost:7001/api/Package
+Content-Type: application/json
+Authorization: Bearer {{coach_token}}
+
+{
+  "name": "Cai thuốc lá 60 ngày - Nâng cao",
+  "description": "Chương trình cai thuốc lá nâng cao 60 ngày với tư vấn 1-1 và theo dõi 24/7",
+  "price": 1200000,
+  "type": "Member",
+  "durationDays": 60
+}
+
+### 7. Coach tạo gói dịch vụ VIP
+POST https://localhost:7001/api/Package
+Content-Type: application/json
+Authorization: Bearer {{coach_token}}
+
+{
+  "name": "Cai thuốc lá 90 ngày - VIP",
+  "description": "Chương trình VIP với coach riêng, plan cá nhân hóa và đảm bảo thành công",
+  "price": 2500000,
+  "type": "Member",
+  "durationDays": 90
+}
+
+#########################################
+### FLOW 3: MEMBER MUA GÓI CỦA COACH
+#########################################
+
+### 8. Member xem tất cả gói dịch vụ có sẵn
+GET https://localhost:7001/api/Package
+Authorization: Bearer {{user_token}}
+
+### 9. Member xem chi tiết gói cơ bản
+GET https://localhost:7001/api/Package/2
+Authorization: Bearer {{user_token}}
+
+### 10. Member 1 mua gói cơ bản từ Coach
+POST https://localhost:7001/api/Order
+Content-Type: application/json
+Authorization: Bearer {{user_token}}
+
+{
+  "packageId": 2,
+  "paymentMethod": "Bank Transfer"
+}
+
+### 11. Member 2 mua gói nâng cao từ Coach
+POST https://localhost:7001/api/Order
+Content-Type: application/json
+Authorization: Bearer {{member2_token}}
+
+{
+  "packageId": 3,
+  "paymentMethod": "Credit Card"
+}
+
+### 12. Coach xem đơn hàng từ các Member
+GET https://localhost:7001/api/Order
+Authorization: Bearer {{coach_token}}
+
+### 13. Coach approve đơn hàng Member 1
+PUT https://localhost:7001/api/Order/2/status
+Content-Type: application/json
+Authorization: Bearer {{coach_token}}
+
+{
+  "status": "Paid",
+  "transactionId": "TXN_MEMBER_001"
+}
+
+### 14. Coach approve đơn hàng Member 2
+PUT https://localhost:7001/api/Order/3/status
+Content-Type: application/json
+Authorization: Bearer {{coach_token}}
+
+{
+  "status": "Paid",
+  "transactionId": "TXN_MEMBER_002"
+}
+
+#########################################
+### FLOW 4: COACH TẠO PLAN CHO MEMBER
+#########################################
+
+### 15. Coach tạo plan cho Member 1 (đã mua gói)
+POST https://localhost:7001/api/Plan
+Content-Type: application/json
+Authorization: Bearer {{coach_token}}
+
+{
+  "name": "Kế hoạch cai thuốc 30 ngày - Nguyễn Văn User",
+  "description": "Kế hoạch cá nhân hóa dành riêng cho Nguyễn Văn User",
+  "packageId": 2,
+  "memberId": 1,
+  "startDate": "2024-01-15T00:00:00",
+  "endDate": "2024-02-14T23:59:59"
+}
+
+### 16. Coach tạo plan cho Member 2 (đã mua gói)
+POST https://localhost:7001/api/Plan
+Content-Type: application/json
+Authorization: Bearer {{coach_token}}
+
+{
+  "name": "Kế hoạch cai thuốc 60 ngày - Nguyễn Thị Member", 
+  "description": "Kế hoạch nâng cao dành cho Nguyễn Thị Member",
+  "packageId": 3,
+  "memberId": 2,
+  "startDate": "2024-01-20T00:00:00",
+  "endDate": "2024-03-20T23:59:59"
+}
+
+#########################################
+### FLOW 5: QUẢN LÝ VÀ THEO DÕI
+#########################################
+
+### 17. Member 1 xem plan của mình
+GET https://localhost:7001/api/Plan/user
+Authorization: Bearer {{user_token}}
+
+### 18. Member 2 xem plan của mình
+GET https://localhost:7001/api/Plan/user
+Authorization: Bearer {{member2_token}}
+
+### 19. Coach xem tất cả plan mình quản lý
+GET https://localhost:7001/api/Plan/coach
+Authorization: Bearer {{coach_token}}
+
+### 20. Admin xem tổng quan tất cả đơn hàng
+GET https://localhost:7001/api/Order
+Authorization: Bearer {{admin_token}}
+
+### 21. Admin xem tổng quan tất cả gói
+GET https://localhost:7001/api/Package
+Authorization: Bearer {{admin_token}}
+
+#########################################
+### TEST CÁC TRƯỜNG HỢP LỖI
+#########################################
+
+### Lỗi: Member tạo gói (không có quyền)
+POST https://localhost:7001/api/Package
+Content-Type: application/json
+Authorization: Bearer {{user_token}}
+
+{
+  "name": "Gói không hợp lệ",
+  "description": "Member không được tạo gói",
+  "price": 100000,
+  "type": "Member",
+  "durationDays": 30
+}
+
+### Lỗi: Coach chưa mua gói Admin mà tạo gói cho Member
+POST https://localhost:7001/api/Package
+Content-Type: application/json
+Authorization: Bearer {{coach_token}}
+
+{
+  "name": "Gói trái phép",
+  "description": "Coach chưa có license",
+  "price": 100000,
+  "type": "Member",
+  "durationDays": 30
+}
+
+### Lỗi: Member mua gói không tồn tại
+POST https://localhost:7001/api/Order
+Content-Type: application/json
+Authorization: Bearer {{user_token}}
+
+{
+  "packageId": 999,
+  "paymentMethod": "Credit Card"
+}
+
+### Lỗi: Coach approve đơn hàng không phải của mình
+PUT https://localhost:7001/api/Order/1/status
+Content-Type: application/json
+Authorization: Bearer {{coach_token}}
+
+{
+  "status": "Paid"
+}
+
+#########################################
+### DASHBOARD VÀ THỐNG KÊ
+#########################################
+
+### Admin xem thống kê doanh thu
+GET https://localhost:7001/api/Order/revenue
+Authorization: Bearer {{admin_token}}
+
+### Coach xem thống kê khách hàng
+GET https://localhost:7001/api/Order/user
+Authorization: Bearer {{coach_token}}
+
+### Coach xem gói của mình
+GET https://localhost:7001/api/Package/creator
+Authorization: Bearer {{coach_token}}
+
+### Member xem lịch sử mua hàng
+GET https://localhost:7001/api/Order/user
+Authorization: Bearer {{user_token}} 

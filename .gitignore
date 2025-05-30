@@ -1,0 +1,23 @@
+## .NET Core
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+## Visual Studio Code
+.vscode/
+.vs/
+
+## Local settings
+appsettings.Development.json
+
+## Logs
+*.log
+logs/
+
+## Database
+*.db
+*.sqlite3
+
